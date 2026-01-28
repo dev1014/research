@@ -20,3 +20,7 @@ MATCH_TYPE = "exhaustive_matcher" # simple and effective for <200 images
 
 # Executable
 COLMAP_EXE = "colmap"
+
+# Dense Paths
+DENSE_WORKSPACE = OUTPUT_DIR / "dense"
+

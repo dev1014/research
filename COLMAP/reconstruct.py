@@ -2,6 +2,7 @@ import subprocess
 import shutil
 import os
 import sys
+import argparse
 from pathlib import Path
 import constants as const
 
@@ -21,24 +22,20 @@ def run_command(cmd, description):
 
 def setup_directories():
     """Creates necessary output directories."""
-    if const.OUTPUT_DIR.exists():
-        print(f"Warning: Output directory {const.OUTPUT_DIR} already exists.")
-        # Optional: Ask to clean? For now, we'll just carry on or cleanup if needed.
-        # For a clean test, maybe we should start fresh?
-        # shutil.rmtree(const.OUTPUT_DIR) # DATA LOSS RISK, better not auto-delete unless sure.
-    
     const.OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     const.SPARSE_OUTPUT_PATH.mkdir(parents=True, exist_ok=True)
-    print(f"Directories setup at {const.OUTPUT_DIR}")
+    print(f"Directories checked at {const.OUTPUT_DIR}")
 
 def feature_extraction():
     """Extracts features from images."""
+    if const.DATABASE_PATH.exists():
+        print(f"Database already exists at {const.DATABASE_PATH}, skipping extraction (delete db to redo).")
+        return True
+        
     cmd = [
         const.COLMAP_EXE, "feature_extractor",
         "--database_path", str(const.DATABASE_PATH),
         "--image_path", str(const.IMAGES_PATH),
-        # Optimal settings usually default, but we can enforce SIFT GPU usage if available
-        # "--SiftExtraction.use_gpu", "1" 
     ]
     return run_command(cmd, "Feature Extraction")
 
@@ -47,12 +44,15 @@ def feature_matching():
     cmd = [
         const.COLMAP_EXE, const.MATCH_TYPE,
         "--database_path", str(const.DATABASE_PATH),
-        # "--SiftMatching.use_gpu", "1"
     ]
     return run_command(cmd, "Feature Matching")
 
 def sparse_reconstruction():
     """Runs the mapper for sparse reconstruction (SfM)."""
+    # Check if sparse model already exists to avoid re-running if mostly done, 
+    # but for this script we usually want to ensure it runs or use --skip options.
+    # We will just run it. COLMAP usually handles incremental or overwrites.
+    
     cmd = [
         const.COLMAP_EXE, "mapper",
         "--database_path", str(const.DATABASE_PATH),
@@ -61,59 +61,96 @@ def sparse_reconstruction():
     ]
     return run_command(cmd, "Sparse Reconstruction")
 
+def image_undistortion():
+    """Undistorts images for dense reconstruction."""
+    const.DENSE_WORKSPACE.mkdir(parents=True, exist_ok=True)
+    
+    # We need to find the sparse model directory (usually '0')
+    subdir = const.SPARSE_OUTPUT_PATH / "0"
+    if not subdir.exists():
+        print(f"❌ Sparse model not found at {subdir}. Cannot proceed to dense.")
+        return False
+        
+    cmd = [
+        const.COLMAP_EXE, "image_undistorter",
+        "--image_path", str(const.IMAGES_PATH),
+        "--input_path", str(subdir),
+        "--output_path", str(const.DENSE_WORKSPACE),
+        "--output_type", "COLMAP",
+        "--max_image_size", "2000"
+    ]
+    return run_command(cmd, "Image Undistortion")
+
+def patch_match_stereo():
+    """Runs patch match stereo for depth estimation."""
+    cmd = [
+        const.COLMAP_EXE, "patch_match_stereo",
+        "--workspace_path", str(const.DENSE_WORKSPACE),
+        "--workspace_format", "COLMAP",
+        "--PatchMatchStereo.geom_consistency", "true"
+    ]
+    return run_command(cmd, "Patch Match Stereo")
+
+def stereo_fusion():
+    """Fuses stereo depth maps into a dense point cloud."""
+    output_ply = const.DENSE_WORKSPACE / "fused.ply"
+    cmd = [
+        const.COLMAP_EXE, "stereo_fusion",
+        "--workspace_path", str(const.DENSE_WORKSPACE),
+        "--workspace_format", "COLMAP",
+        "--input_type", "geometric",
+        "--output_path", str(output_ply)
+    ]
+    return run_command(cmd, "Stereo Fusion")
+
 def analyze_results():
     """Analyzes the reconstruction results."""
-    # Check if model files exist
-    model_files = ["cameras.bin", "images.bin", "points3D.bin"]
-    # Mapper output is typically in a subdirectory '0', '1' etc. if multiple models found.
-    # Usually '0' is the largest component.
+    # Relying on standard '0' folder
+    results_path = const.SPARSE_OUTPUT_PATH / "0"
+    if results_path.exists():
+        print(f"Analyzing model in: {results_path}")
+        cmd = [const.COLMAP_EXE, "model_analyzer", "--path", str(results_path)]
+        run_command(cmd, "Model Analysis")
+
+def run_sparse():
+    print("--- Starting Sparse Reconstruction ---")
+    setup_directories()
+    if not feature_extraction(): return False
+    if not feature_matching(): return False
+    if not sparse_reconstruction(): return False
+    analyze_results()
+    print(f"✅ Sparse reconstruction available at {const.SPARSE_OUTPUT_PATH}")
+    return True
+
+def run_dense():
+    print("--- Starting Dense Reconstruction ---")
+    # Dense requires sparse output. 
+    # We assume sparse is done if we are running dense, OR we check.
+    # If sparse '0' doesn't exist, we must run sparse first.
+    if not (const.SPARSE_OUTPUT_PATH / "0").exists():
+        print("Sparse model not found. Running sparse pipeline first...")
+        if not run_sparse(): return False
     
-    # Mapper might output directly to SPARSE_OUTPUT_PATH if only one model, 
-    # OR it creates generated subfolders like "0", "1".
-    # Let's check subdirectories.
+    if not image_undistortion(): return False
+    if not patch_match_stereo(): return False
+    if not stereo_fusion(): return False
     
-    # Reload directory contents
-    subdirs = [x for x in const.SPARSE_OUTPUT_PATH.iterdir() if x.is_dir()]
-    
-    if not subdirs:
-        # Sometimes it saves directly if configured, but default 'mapper' saves to subdirs
-        # Let's check if files are in the root of sparse output
-        if all((const.SPARSE_OUTPUT_PATH / f).exists() for f in model_files):
-             results_path = const.SPARSE_OUTPUT_PATH
-        else:
-            print("❌ No reconstruction sub-folders found in sparse output.")
-            return
-    else:
-        # Assume '0' is the best model
-        results_path = subdirs[0]
-    
-    print(f"Analyzing model in: {results_path}")
-    
-    cmd = [
-        const.COLMAP_EXE, "model_analyzer",
-        "--path", str(results_path)
-    ]
-    run_command(cmd, "Model Analysis")
+    print(f"✅ Dense reconstruction completed.")
+    print(f"Result: {const.DENSE_WORKSPACE / 'fused.ply'}")
+    return True
 
 def main():
-    print("Starting COLMAP Reconstruction Pipeline Test")
+    parser = argparse.ArgumentParser(description="Run COLMAP reconstruction pipeline.")
+    group = parser.add_mutually_exclusive_group(required=True)
+    group.add_argument("--sparse", action="store_true", help="Run only Sparse Reconstruction (SfM)")
+    group.add_argument("--dense", action="store_true", help="Run Sparse (if needed) + Dense Reconstruction (MVS)")
     
-    setup_directories()
+    args = parser.parse_args()
     
-    if not feature_extraction():
-        sys.exit(1)
-        
-    if not feature_matching():
-        sys.exit(1)
-        
-    if not sparse_reconstruction():
-        sys.exit(1)
-        
-    analyze_results()
-    
-    print("\n---------------------------------------")
-    print(f"Process Finished. Results are in {const.SPARSE_OUTPUT_PATH}")
-    print("You can view them by running COLMAP GUI and importing the model.")
+    if args.sparse:
+        run_sparse()
+    elif args.dense:
+        run_dense()
 
 if __name__ == "__main__":
     main()
