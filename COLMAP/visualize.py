@@ -2,6 +2,7 @@ import open3d as o3d
 import numpy as np
 import constants as const
 import sys
+from pathlib import Path
 
 def render_ply(ply_path):
     print(f"Loading point cloud from: {ply_path}")
@@ -40,7 +41,7 @@ def render_ply(ply_path):
 
 def main():
     # Path to the fused ply file
-    ply_file = const.DENSE_WORKSPACE / "fused.ply"
+    ply_file = Path(r"C:\Users\devna\OneDrive\Desktop\Projects\research\dust3r\output\dust3r_pointcloud.ply")
     
     # Check if exists
     if not ply_file.exists():
