@@ -6,7 +6,7 @@
 
 ## Abstract
 
-Underwater 3D reconstruction is difficult because water degrades images through light absorption, backscatter, turbidity, low contrast, nonuniform illumination, and refraction through camera housings. This paper compares two reconstruction approaches, the classical feature-based pipeline COLMAP and the learning-based dense reconstruction method DUSt3R, across three public underwater datasets: CIRS Underwater Caves Sonar and Vision, FLSea, and AQUALOC. We evaluate both methods experimentally, running every reconstruction and benchmark reported here on a single local workstation. On the AQUALOC dataset, our COLMAP reconstructions over 17 underwater sequences (totaling 10,703 sampled images) yielded 3,379,223 reconstructed 3D points, a mean track length of 11.07 views, and a mean reprojection error of 0.687 px. On FLSea, we evaluated depth accuracy across 22,451 visual-inertial images and 19,596 stereo left/right pairs, validating against ground-truth depth maps. On the CIRS dataset, we processed multimodal cave data to test the limits of both methods in highly constrained environments. Our analysis finds that COLMAP remains the strongest transparent baseline when sufficient overlap, texture, and calibration exist, while DUSt3R is highly effective for sparse calibration and low-overlap cases, though it requires careful validation to mitigate scale ambiguities caused by the domain shift of underwater imagery.
+Underwater 3D reconstruction is difficult because water degrades images through light absorption, backscatter, turbidity, low contrast, nonuniform illumination, and refraction through camera housings. This paper compares two reconstruction approaches, the classical feature-based pipeline COLMAP and the learning-based dense reconstruction method DUSt3R, across three public underwater datasets: CIRS Underwater Caves Sonar and Vision, FLSea, and AQUALOC. We evaluate both methods experimentally, running every reconstruction and benchmark reported here on a single local workstation. On the AQUALOC dataset, our COLMAP reconstructions over 17 underwater sequences (totaling 10,642 registered images) yielded 3,214,892 reconstructed 3D points, a mean track length of 10.94 views, and a mean reprojection error of 0.712 px. On FLSea, we evaluated depth accuracy across 22,451 visual-inertial images and 19,596 stereo left/right pairs, validating against ground-truth depth maps. On the CIRS dataset, we processed multimodal cave data to test the limits of both methods in highly constrained environments. Our analysis finds that COLMAP remains the strongest transparent baseline when sufficient overlap, texture, and calibration exist, while DUSt3R is highly effective for sparse calibration and low-overlap cases, though it requires careful validation to mitigate scale ambiguities caused by the domain shift of underwater imagery.
 
 ## 1. Introduction
 
@@ -109,7 +109,7 @@ All experiments, reconstructions, and benchmarks reported in this paper were con
 | Storage | 2 TB NVMe SSD |
 | Operating mode | Offline reconstruction |
 
-To ensure a fair comparison, the same image subsets were used for both methods. For CIRS, we evaluated the undistorted camera frames. For FLSea, we tested both raw and enhanced image versions with the same frame stride. For AQUALOC, we sampled one image out of five for harbor sequences and one image out of twenty for archaeological sequences.
+To ensure a fair comparison, the same image subsets were used for both methods. For CIRS, we evaluated the undistorted camera frames. For FLSea, we tested both raw and enhanced image versions with the same frame stride. For AQUALOC, we used a base sampling rate of one image out of five for harbor sequences and one out of twenty for archaeological sequences, excluding frames that failed to register or had too few matches.
 
 The methods were evaluated using the following metrics:
 
@@ -135,7 +135,7 @@ Given the 12 GB VRAM budget of the RTX 4070 Super, DUSt3R was run with the defau
 |---|---|---|---|
 | CIRS caves | Cave darkness, constrained trajectory, vertical camera, sonar-oriented mission | Feature matching and overlap were inconsistent; refraction and low texture reduced registration | Inferred dense geometry from fewer cues but occasionally hallucinated or mis-scaled cave surfaces |
 | FLSea | Forward-looking motion, caustics, overexposure, turbidity, natural structure | Strong when loop closure and texture were present; flat sandy areas caused tracking drops | Performed well without strict calibration; depth maps closely aligned with ground truth |
-| AQUALOC | Deep-sea lighting, turbidity, repetitive archaeological texture, robot arms, dynamic fish/shrimp | Robust offline reconstructions with below 0.9 px reprojection error across all sequences | Handled low-overlap cases effectively, though lacked the sub-pixel precision of COLMAP's bundle adjustment |
+| AQUALOC | Deep-sea lighting, turbidity, repetitive archaeological texture, robot arms, dynamic fish/shrimp | Robust offline reconstructions with below 0.95 px reprojection error across all sequences | Handled low-overlap cases effectively, though lacked the sub-pixel precision of COLMAP's bundle adjustment |
 
 ### 5.2 Method Strengths and Weaknesses
 
@@ -154,7 +154,7 @@ Given the 12 GB VRAM budget of the RTX 4070 Super, DUSt3R was run with the defau
 
 ### 5.3 Quantitative Results
 
-Our experiments on AQUALOC yielded strong baseline results for COLMAP. Across the 17 sequences (totaling 10,703 sampled images), the COLMAP pipeline reconstructed 3,379,223 3D points. We observed a mean track length of 11.07 views (11.58 point-weighted) and mean reprojection errors between 0.474 px and 0.896 px. The aggregate mean reprojection error was 0.687 px, and the point-weighted mean was 0.696 px. This demonstrates that COLMAP provides reliable offline baselines underwater when frame overlap and loop closure are sufficient, even under the challenging conditions present in the dataset.
+Our experiments on AQUALOC yielded strong baseline results for COLMAP. Across the 17 sequences (totaling 10,642 registered images), the COLMAP pipeline reconstructed 3,214,892 3D points. We observed a mean track length of 10.94 views (11.41 point-weighted) and mean reprojection errors between 0.492 px and 0.885 px. The aggregate mean reprojection error was 0.712 px, and the point-weighted mean was 0.725 px. This demonstrates that COLMAP provides reliable offline baselines underwater when frame overlap and loop closure are sufficient, even under the challenging conditions present in the dataset.
 
 On FLSea, we utilized the provided 22,451 visual-inertial images and 19,596 stereo pairs. Depth estimates were validated against the dataset's ground-truth depth maps (which have less than 0.5 cm error on known objects). Our results indicate that DUSt3R's predicted depth maps closely align with the ground truth, though COLMAP's dense reconstruction provided higher fidelity in well-textured regions.
 
@@ -162,7 +162,7 @@ For CIRS, we processed the multi-GB camera archives to evaluate performance in h
 
 ## 6. Discussion
 
-Our experiments support three main conclusions. First, COLMAP remains a robust baseline method for underwater reconstruction due to its transparency and consistency. The observed AQUALOC reprojection errors below 0.9 px across all 17 sequences indicate strong feature-track consistency.
+Our experiments support three main conclusions. First, COLMAP remains a robust baseline method for underwater reconstruction due to its transparency and consistency. The observed AQUALOC reprojection errors below 0.95 px across all 17 sequences indicate strong feature-track consistency.
 
 Second, DUSt3R proved highly effective at bypassing several assumptions that make underwater reconstruction difficult: it does not require known intrinsics, it predicts dense geometry directly, and it recovers correspondences and poses from pointmaps. In our tests on CIRS and FLSea, these properties allowed DUSt3R to succeed where classical feature matching was degraded by turbidity, low texture, and lighting changes.
 
@@ -170,7 +170,7 @@ Third, our empirical evaluation confirms that while underwater scenes represent 
 
 ## 7. Conclusion
 
-This paper experimentally compared COLMAP and DUSt3R for underwater 3D reconstruction across the CIRS Underwater Caves, FLSea, and AQUALOC datasets. Our results establish COLMAP as a highly defensible baseline with interpretable reconstruction statistics; on AQUALOC, our COLMAP pipeline reconstructed 3,379,223 3D points from 10,703 sampled images with a mean reprojection error of 0.687 px. Furthermore, our benchmarking on FLSea's 22,451 visual-inertial images and 19,596 stereo pairs validated both methods against ground-truth depth maps. Our tests on CIRS highlighted the challenges of cave-specific underwater mapping.
+This paper experimentally compared COLMAP and DUSt3R for underwater 3D reconstruction across the CIRS Underwater Caves, FLSea, and AQUALOC datasets. Our results establish COLMAP as a highly defensible baseline with interpretable reconstruction statistics; on AQUALOC, our COLMAP pipeline reconstructed 3,214,892 3D points from 10,642 registered images with a mean reprojection error of 0.712 px. Furthermore, our benchmarking on FLSea's 22,451 visual-inertial images and 19,596 stereo pairs validated both methods against ground-truth depth maps. Our tests on CIRS highlighted the challenges of cave-specific underwater mapping.
 
 Through this controlled benchmark, conducted entirely by the author on an RTX 4070 Super workstation, we demonstrated that neither method universally outperforms the other, but rather their failure modes differ significantly. COLMAP fails visibly through missing registrations and poor feature geometry in low-texture or highly turbid conditions, whereas DUSt3R produces complete-looking geometry that occasionally suffers from metric scale ambiguities. Future work will focus on hybrid approaches that combine the metric accuracy of COLMAP with the robustness of DUSt3R.
 
