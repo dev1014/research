@@ -1,8 +1,6 @@
 # Comparative Study of COLMAP and DUSt3R for Underwater 3D Reconstruction Across Three Public Datasets
 
-**Author:** Dev Narang  
-**Target venue/style:** High-school research paper written in graduate-level technical form  
-**Date:** June 2026
+**Author:** Dev Narang
 
 ## Abstract
 
