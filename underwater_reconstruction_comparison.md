@@ -85,21 +85,33 @@ Reconstruction quality was measured by registration completeness, sparse-point c
 
 ### 5.1 COLMAP across the seven harbor sequences
 
-Table 1 reports the per-sequence COLMAP results. Across all seven sequences COLMAP reconstructed 334,906 sparse 3D points (largest models) with a median mean-reprojection-error of 0.35 px (mean 0.45 px, range 0.29–1.09 px). Trajectory accuracy was excellent on five sequences (ATE RMSE 1.0–5.3 cm) but poor on two (H03: 24.5 cm; H05: 1.87 m), giving a median ATE of 3.8 cm.
+Tables 1a and 1b report the per-sequence COLMAP results. Across all seven sequences COLMAP reconstructed 334,906 sparse 3D points (largest models) with a median mean-reprojection-error of 0.35 px (mean 0.45 px, range 0.29–1.09 px). Trajectory accuracy was excellent on five sequences (ATE RMSE 1.0–5.3 cm) but poor on two (H03: 24.5 cm; H05: 1.87 m), giving a median ATE of 3.8 cm.
 
 The most important qualitative finding is that **registration was frequently fragmented**: COLMAP often split a sequence into several disconnected sub-models rather than one continuous reconstruction. The largest connected model covered only 33–50% of frames on five of the seven sequences, even though total registration across all sub-models reached 52–94%. Two short, well-textured sequences (H03, H06) reconstructed as a single complete model. Sequence H05 is a clear failure case: high reprojection error (1.09 px), a near-degenerate recovered scale (Sim(3) scale 0.19), and 1.87 m ATE.
 
-**Table 1.** Per-sequence COLMAP results on the AQUALOC harbor sequences. "Largest model" is the largest connected reconstruction; "total reg." sums registered images across all sub-models. ATE/RPE are computed against the dataset ground-truth trajectory after Sim(3) alignment.
+**Table 1a.** Per-sequence COLMAP reconstruction and registration on the AQUALOC harbor sequences. "Largest model" is the largest connected reconstruction; "total reg." sums registered images across all sub-models.
 
-| Seq | Stride | Input imgs | Sub-models | Largest model (imgs / %) | Total reg. | Sparse points | Reproj. err (px) | Track len | ATE RMSE (m) | ATE std (m) | RPE mean (m) | Sim(3) scale |
-|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| H01 | 5 | 918 | 2 | 306 / 33.3% | 475 | 17,629 | 0.351 | 11.64 | 0.0149 | 0.0123 | 0.0037 | 0.921 |
-| H02 | 5 | 1629 | 5 | 772 / 47.4% | 1341 | 55,653 | 0.422 | 9.51 | 0.0248 | 0.0153 | 0.0010 | 0.697 |
-| H03 | 10 | 516 | 1 | 516 / 100% | 516 | 109,666 | 0.325 | 7.84 | 0.2453 | 0.1627 | 0.0007 | 0.440 |
-| H04 | 10 | 413 | 4 | 170 / 41.2% | 310 | 19,838 | 0.308 | 5.16 | 0.0384 | 0.0164 | 0.0021 | 1.425 |
-| H05 | 10 | 346 | 4 | 173 / 50.0% | 324 | 38,680 | 1.087 | 4.67 | 1.8662 | 0.8643 | 0.0848 | 0.192 |
-| H06 | 10 | 254 | 2 | 254 / 100% | 256 | 54,257 | 0.352 | 6.20 | 0.0525 | 0.0351 | 0.0017 | 0.508 |
-| H07 | 5 | 453 | 4 | 191 / 42.2% | 422 | 39,183 | 0.293 | 5.92 | 0.0096 | 0.0059 | 0.0012 | 0.404 |
+| Seq | Stride | Input imgs | Sub-models | Largest model (imgs / %) | Total reg. | Sparse points | Reproj. err (px) | Track len |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| H01 | 5 | 918 | 2 | 306 / 33.3% | 475 | 17,629 | 0.351 | 11.64 |
+| H02 | 5 | 1629 | 5 | 772 / 47.4% | 1341 | 55,653 | 0.422 | 9.51 |
+| H03 | 10 | 516 | 1 | 516 / 100% | 516 | 109,666 | 0.325 | 7.84 |
+| H04 | 10 | 413 | 4 | 170 / 41.2% | 310 | 19,838 | 0.308 | 5.16 |
+| H05 | 10 | 346 | 4 | 173 / 50.0% | 324 | 38,680 | 1.087 | 4.67 |
+| H06 | 10 | 254 | 2 | 254 / 100% | 256 | 54,257 | 0.352 | 6.20 |
+| H07 | 5 | 453 | 4 | 191 / 42.2% | 422 | 39,183 | 0.293 | 5.92 |
+
+**Table 1b.** Per-sequence COLMAP trajectory accuracy on the same sequences. ATE/RPE are computed against the dataset ground-truth trajectory after Sim(3) alignment; the Sim(3) scale is reported as a direct measure of scale ambiguity.
+
+| Seq | ATE RMSE (m) | ATE std (m) | RPE mean (m) | Sim(3) scale |
+|---|---:|---:|---:|---:|
+| H01 | 0.0149 | 0.0123 | 0.0037 | 0.921 |
+| H02 | 0.0248 | 0.0153 | 0.0010 | 0.697 |
+| H03 | 0.2453 | 0.1627 | 0.0007 | 0.440 |
+| H04 | 0.0384 | 0.0164 | 0.0021 | 1.425 |
+| H05 | 1.8662 | 0.8643 | 0.0848 | 0.192 |
+| H06 | 0.0525 | 0.0351 | 0.0017 | 0.508 |
+| H07 | 0.0096 | 0.0059 | 0.0012 | 0.404 |
 
 On a representative run (H07, 453 images), GPU feature extraction took 2.6 s, sequential matching 3.1 s, and incremental mapping 91 s. Mapping time grew sharply with image count and scene difficulty: H02 (1629 images) required 552 s, and at stride five the two largest sequences did not converge within a ~25-minute budget, motivating the stride-ten setting for the larger sequences.
 
