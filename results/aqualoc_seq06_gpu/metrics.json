@@ -1,0 +1,20 @@
+{
+  "sequence": "06",
+  "stride": 10,
+  "num_input_images": 254,
+  "t_extract_s": 1.7,
+  "t_match_s": 2.6,
+  "t_mapping_s": 69.2,
+  "num_submodels": 2,
+  "total_registered_all_models": 256,
+  "registered_images": 254,
+  "pct_registered_largest": 100.0,
+  "points3D": 54257,
+  "mean_reproj_error_px": 0.3522,
+  "mean_track_length": 6.198,
+  "gt_common_poses": 254,
+  "sim3_scale": 0.5079,
+  "ate_rmse_m": 0.0525,
+  "ate_std_m": 0.0351,
+  "rpe_mean_m": 0.0017
+}

@@ -1,0 +1,50 @@
+{
+  "sequence": "01",
+  "num_images": 20,
+  "num_pairs": 120,
+  "t_infer_align_s": 46.7,
+  "peak_vram_gb": 4.44,
+  "dense_points_total": 4096000,
+  "conf_min": 0.002,
+  "conf_mean": 1.954,
+  "conf_max": 3.17,
+  "conf_sweep": {
+    "1.01": {
+      "points": 3925764,
+      "frac": 0.9584
+    },
+    "1.05": {
+      "points": 3905092,
+      "frac": 0.9534
+    },
+    "1.1": {
+      "points": 3875446,
+      "frac": 0.9462
+    },
+    "1.25": {
+      "points": 3754185,
+      "frac": 0.9165
+    },
+    "1.5": {
+      "points": 3416047,
+      "frac": 0.834
+    },
+    "2.0": {
+      "points": 2009030,
+      "frac": 0.4905
+    },
+    "2.5": {
+      "points": 516486,
+      "frac": 0.1261
+    },
+    "3.0": {
+      "points": 21638,
+      "frac": 0.0053
+    }
+  },
+  "gt_common_poses": 20,
+  "sim3_scale": 6.3418,
+  "ate_rmse_m": 0.0591,
+  "ate_std_m": 0.0182,
+  "rpe_mean_m": 0.0151
+}

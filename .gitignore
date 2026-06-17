@@ -1,3 +1,22 @@
-database.db
+# Python virtual environment
+.venv/
+__pycache__/
+*.pyc
 
-.venv
+# Large public datasets (download from official sources; see paper Section 9)
+datasets/
+
+# Third-party code and model weights (DUSt3R repo + checkpoint)
+dust3r/
+
+# COLMAP / reconstruction intermediates (large, regenerable from scripts)
+*.db
+database.db
+results/**/sparse/
+results/**/dense/
+*.ply
+
+# Keep the small metric logs in results/ (results/**/*.json are tracked)
+
+# OS / editor cruft
+.DS_Store

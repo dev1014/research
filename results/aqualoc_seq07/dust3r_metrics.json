@@ -1,0 +1,22 @@
+{
+  "num_images": 20,
+  "conf_thr": 3.0,
+  "num_pairs": 120,
+  "t_infer_align_s": 46.5,
+  "peak_vram_gb": 4.44,
+  "dense_points_conf_filtered": 0,
+  "dense_points_total": 4096000,
+  "conf_min": 0.013,
+  "conf_mean": 1.341,
+  "conf_max": 2.68,
+  "conf_p90": 1.936,
+  "frac_conf_gt_1_1": 0.682,
+  "gt_common_poses": 20,
+  "sim3_scale": 4.5007,
+  "ate_rmse_m": 0.072,
+  "ate_mean_m": 0.0657,
+  "ate_median_m": 0.059,
+  "ate_std_m": 0.0294,
+  "rpe_mean_m": 0.0431,
+  "rpe_std_m": 0.0469
+}
