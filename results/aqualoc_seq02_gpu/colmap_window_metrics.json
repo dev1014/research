@@ -1,0 +1,19 @@
+{
+  "sequence": "02",
+  "window_frames": 20,
+  "t_extract_s": 0.7,
+  "t_match_s": 0.4,
+  "t_mapping_s": 5.1,
+  "num_submodels": 2,
+  "total_registered_all_models": 22,
+  "registered_images": 20,
+  "pct_registered_largest": 100.0,
+  "points3D": 3908,
+  "mean_reproj_error_px": 0.3498,
+  "mean_track_length": 7.684,
+  "gt_common_poses": 20,
+  "sim3_scale": 0.0397,
+  "ate_rmse_m": 0.0004,
+  "ate_std_m": 0.0002,
+  "rpe_mean_m": 0.0002
+}

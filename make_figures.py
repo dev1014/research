@@ -17,6 +17,12 @@ seqs = ["01", "02", "03", "04", "05", "06", "07"]
 data = {s: json.loads((RES / f"aqualoc_seq{s}_gpu" / "metrics.json").read_text()) for s in seqs}
 dust_seqs = ["01", "02", "07"]
 dust = {s: json.loads((RES / f"aqualoc_seq{s}_gpu" / "dust3r_metrics.json").read_text()) for s in dust_seqs}
+# Matched-window COLMAP (same 20-frame windows as DUSt3R); may be absent for failed windows.
+win = {}
+for s in dust_seqs:
+    p = RES / f"aqualoc_seq{s}_gpu" / "colmap_window_metrics.json"
+    if p.exists():
+        win[s] = json.loads(p.read_text())
 
 # Figure 1: registration % (largest model) and reprojection error per sequence
 fig, ax1 = plt.subplots(figsize=(8, 4.5))
@@ -41,7 +47,34 @@ fig.tight_layout()
 fig.savefig(FIG / "figure1_colmap_per_sequence.png", dpi=DPI)
 plt.close(fig)
 
-# Figure 2: DUSt3R confidence-survival curves for 3 sequences
+# Figure 2: COLMAP ATE per sequence (log) with DUSt3R and matched-window COLMAP overlaid
+fig, ax = plt.subplots(figsize=(8, 4.5))
+ate = [data[s]["ate_rmse_m"] * 100 for s in seqs]
+ax.bar([f"H{s}" for s in seqs], ate, color="#4C72B0", alpha=0.85, label="COLMAP (full sequence)")
+dx = [seqs.index(s) for s in dust_seqs]
+dy = [dust[s]["ate_rmse_m"] * 100 for s in dust_seqs]
+ax.plot(dx, dy, "D", color="#C44E52", markersize=8, label="DUSt3R (20-frame window)")
+# Matched-window COLMAP on the SAME 20-frame windows (only where it produced a trajectory).
+wx = [seqs.index(s) for s in dust_seqs if s in win and "ate_rmse_m" in win[s]]
+wy = [win[s]["ate_rmse_m"] * 100 for s in dust_seqs if s in win and "ate_rmse_m" in win[s]]
+if wx:
+    ax.plot(wx, wy, "s", color="#55A868", markersize=8, markerfacecolor="none",
+            markeredgewidth=1.8, label="COLMAP (matched 20-frame window)")
+# Mark windows where matched-window COLMAP failed to register (no trajectory).
+fx = [seqs.index(s) for s in dust_seqs if s in win and "ate_rmse_m" not in win[s]]
+for i, xf in enumerate(fx):
+    ax.annotate("COLMAP\nwindow failed", xy=(xf, dy[dust_seqs.index(seqs[xf])]),
+                xytext=(xf, max(ate) * 0.5), fontsize=7, color="#55A868", ha="center")
+ax.set_yscale("log")
+ax.set_ylabel("ATE RMSE (cm, log scale)")
+ax.set_xlabel("AQUALOC harbor sequence")
+ax.set_title("Trajectory error vs ground truth (Sim(3)-aligned): COLMAP vs DUSt3R")
+ax.legend(fontsize=8)
+fig.tight_layout()
+fig.savefig(FIG / "figure2_ate_per_sequence.png", dpi=DPI)
+plt.close(fig)
+
+# Figure 3: DUSt3R confidence-survival curves for 3 sequences
 fig, ax = plt.subplots(figsize=(7, 4.5))
 colors = {"01": "#55A868", "02": "#4C72B0", "07": "#8172B3"}
 thr_keys = list(next(iter(dust.values()))["conf_sweep"].keys())
@@ -57,23 +90,7 @@ ax.set_ylabel("Dense points surviving (%)")
 ax.set_title("DUSt3R confidence collapse on underwater imagery (3 harbor windows)")
 ax.legend(fontsize=8)
 fig.tight_layout()
-fig.savefig(FIG / "figure2_dust3r_confidence.png", dpi=DPI)
-plt.close(fig)
-
-# Figure 3: COLMAP ATE per sequence (log) with DUSt3R overlaid for shared sequences
-fig, ax = plt.subplots(figsize=(8, 4.5))
-ate = [data[s]["ate_rmse_m"] * 100 for s in seqs]
-ax.bar([f"H{s}" for s in seqs], ate, color="#4C72B0", alpha=0.85, label="COLMAP (full sequence)")
-dx = [seqs.index(s) for s in dust_seqs]
-dy = [dust[s]["ate_rmse_m"] * 100 for s in dust_seqs]
-ax.plot(dx, dy, "D", color="#C44E52", markersize=8, label="DUSt3R (20-frame window)")
-ax.set_yscale("log")
-ax.set_ylabel("ATE RMSE (cm, log scale)")
-ax.set_xlabel("AQUALOC harbor sequence")
-ax.set_title("Trajectory error vs ground truth (Sim(3)-aligned): COLMAP vs DUSt3R")
-ax.legend(fontsize=8)
-fig.tight_layout()
-fig.savefig(FIG / "figure3_ate_per_sequence.png", dpi=DPI)
+fig.savefig(FIG / "figure3_dust3r_confidence.png", dpi=DPI)
 plt.close(fig)
 
 print("wrote:", [p.name for p in sorted(FIG.glob('*.png'))])

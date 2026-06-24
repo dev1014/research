@@ -1,0 +1,15 @@
+{
+  "sequence": "07",
+  "window_frames": 20,
+  "t_extract_s": 0.6,
+  "t_match_s": 0.4,
+  "t_mapping_s": 1.2,
+  "num_submodels": 1,
+  "total_registered_all_models": 2,
+  "registered_images": 2,
+  "pct_registered_largest": 10.0,
+  "points3D": 100,
+  "mean_reproj_error_px": 0.1821,
+  "mean_track_length": 2.0,
+  "gt_common_poses": 2
+}
