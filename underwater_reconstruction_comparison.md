@@ -2,9 +2,13 @@
 
 **Author:** Dev Narang
 
+> **KJ:** This is a really strong draft, but I would not submit it yet. The main things to fix are fairness of the COLMAP vs. DUSt3R comparison, the missing public repo link, a few confusing numbers, and the Word doc citation formatting.
+
 ## Abstract
 
 **Background/Objective:** Underwater 3D reconstruction is degraded by light absorption, backscatter, turbidity, low contrast, nonuniform illumination, and refraction through camera housings. This study experimentally compares a classical feature-based pipeline (COLMAP) and a learning-based dense reconstruction method (DUSt3R) on real underwater imagery, and reports exactly what was run so the results can be reproduced. **Methods:** All experiments were conducted on a single RTX 4070 Super (12 GB) workstation. COLMAP (native CUDA build) was run on all seven AQUALOC harbor sequences using the dataset's fisheye calibration, and the recovered camera centers were compared against the dataset's ground-truth Structure-from-Motion trajectories after Sim(3) alignment. DUSt3R was run with its official 512 px model and default global-alignment settings on 20-frame windows of three sequences, and a confidence-threshold sweep was performed. **Results:** Across the seven harbor sequences COLMAP reconstructed 334,906 sparse 3D points with a median mean-reprojection-error of 0.35 px (range 0.29–1.09 px) and a median trajectory error (ATE RMSE) of 3.8 cm, but registration was frequently fragmented (largest connected model: 33–100% of frames; mean 59%), and one sequence failed (1.09 px, 1.87 m ATE). On the three windows DUSt3R recovered all camera poses but at lower accuracy (ATE 5.8–7.2 cm vs COLMAP's 1.0–2.5 cm on the same sequences) and with a large, consistent reconstruction-scale ambiguity (Sim(3) scale 3.2–6.3). Critically, DUSt3R's per-pixel confidence stayed low (maximum 2.68–3.17 across windows), so its default filtering threshold of 3.0 retained only 0–0.5% of points; a threshold near 1.5 was required to retain a usable fraction (33–83%). **Conclusions:** COLMAP is the more accurate and interpretable method when it converges, but underwater conditions make its reconstructions fragment and occasionally fail; DUSt3R is more robust to registration but is up-to-scale and exhibits a pronounced confidence collapse underwater. Neither method is universally superior, and their failure modes differ.
+
+> **KJ:** The abstract is really good, but it is doing too much. For this journal, make it less packed. Keep the big story: COLMAP is accurate but fragments. DUSt3R gets poses on the tested windows but has scale/confidence problems underwater.
 
 **Keywords:** underwater 3D reconstruction, Structure-from-Motion, COLMAP, DUSt3R, multi-view stereo, learned 3D vision, AQUALOC, absolute trajectory error, domain shift, confidence filtering, photogrammetry, visual localization
 
@@ -12,13 +16,19 @@
 
 Three-dimensional reconstruction from underwater images supports cave mapping, marine archaeology, robot navigation, and coastal-ecosystem and aquaculture monitoring, such as mapping seabed terrain to assess site viability for local oyster farmers. Unlike terrestrial photogrammetry, underwater imagery is affected by wavelength-dependent attenuation, scattering, artificial lighting gradients, moving particles, dynamic marine life, and refraction through flat or dome camera ports. These effects reduce keypoint repeatability and violate the simple pinhole assumptions used by many reconstruction systems.
 
+> **KJ:** The oyster-farming example is nice, but it feels a little random unless you come back to it later or explain it a little better as a problem that exists currently. Either connect it to the paper again or make this sentence more general.
+
 This paper compares two representative methods. COLMAP is a mature Structure-from-Motion (SfM) and Multi-View Stereo (MVS) system that estimates camera poses, sparse geometry, and dense reconstructions from image correspondences (1, 2). DUSt3R, introduced at CVPR 2024, is a transformer-based method that directly predicts pairwise 3D pointmaps and can recover dense geometry, correspondences, camera parameters, and poses from uncalibrated image collections (3).
 
 Many published comparisons of such methods underwater report only aggregate or qualitative outcomes. The objective of this work is narrower and verifiable: to run both methods on a real, publicly available underwater dataset on a single consumer workstation, to validate the recovered geometry against ground truth, and to report the exact configuration, the per-sequence results, and the failure cases. The research question is:
 
 > When run under identical, fully specified conditions on real underwater data, how do classical SfM/MVS (COLMAP) and learned dense reconstruction (DUSt3R) compare in registration completeness, geometric accuracy, trajectory accuracy, and practical robustness?
 
+> **KJ:** Be careful with "identical" here. COLMAP is run on full sequences, while DUSt3R is run on 20-frame windows. Also, "geometric accuracy" is a little risky because you are not directly validating dense geometry yet.
+
 **Scope.** This study evaluates the seven AQUALOC harbor sequences. Two additional underwater datasets, CIRS Underwater Caves and FLSea, are described in Section 2 because they motivate the problem and are the intended targets of follow-up work; they were **not** evaluated here. Limiting the scope to one dataset keeps every reported number traceable to an executed experiment.
+
+> **KJ:** Add a short plain-English overview after this. Explain COLMAP, DUSt3R, ATE, RPE, Sim(3), and confidence thresholds like you are explaining them to a smart reader who has not done 3D vision before.
 
 ## 2. Datasets
 
@@ -45,6 +55,8 @@ The CIRS dataset (5) was collected in 2013 with an AUV testbed guided by a diver
 ### 2.3 FLSea (motivation / future work)
 
 FLSea (6) is a forward-looking underwater visual dataset collected in the Mediterranean and Red Sea, containing 12 monocular visual-inertial sequences and 5 stereo sequences, with offline depth maps produced using Agisoft Metashape and validated against known-size objects (reported error below 0.5 cm on a checked subset). Because it provides dense ground-truth depth maps, FLSea is the natural dataset for validating DUSt3R's predicted depth and is the primary target of follow-up work. It was not processed in this study.
+
+> **KJ:** These future-work datasets are useful, but this section is a bit long for datasets you did not actually run. I would shorten CIRS and FLSea so AQUALOC stays clearly central.
 
 ## 3. Methods Compared
 
@@ -73,9 +85,13 @@ All experiments were conducted by the author on a single workstation:
 
 For each harbor sequence, images were sampled at a fixed stride (one in five frames for the smaller sequences; one in ten for the two largest sequences, which did not complete incremental mapping within a practical time budget at stride five — itself reported in Section 5). The dataset's published fisheye intrinsics were supplied directly to COLMAP using the `OPENCV_FISHEYE` camera model with a single shared camera, so no intrinsics were invented. The pipeline was GPU feature extraction (SIFT), GPU sequential matching (window 10), and incremental mapping. Reported quantities are the native COLMAP outputs: number of reconstructed sub-models, registered images in the largest connected model, total registered images across all sub-models, sparse 3D points, mean reprojection error, and mean track length.
 
+> **KJ:** Add a few more COLMAP details if you have them: SIFT max image size, max features, matching window/overlap, whether loop matching was used, mapper settings, and whether intrinsics were fixed or refined.
+
 ### 4.2 DUSt3R configuration
 
 DUSt3R was run with the official default inference settings: each image rescaled so its longer side measured 512 px, pairwise inference with a sliding-window scene graph, and global alignment with the point-cloud optimizer for 300 iterations using a cosine schedule and initial learning rate 0.01. Because the 12 GB GPU could not hold the global-alignment state for a full sequence (an attempt at 40 images exhausted memory), DUSt3R was evaluated on contiguous 20-frame windows, each consisting of frames that all have ground-truth poses, taken from three sequences (H01, H02, H07) so that the pose-accuracy and confidence findings rest on more than one segment. The default per-pixel confidence threshold is 3.0; a sweep over thresholds was performed on each window to characterize how many points survive filtering.
+
+> **KJ:** This is the biggest fairness issue. Since DUSt3R uses 20-frame windows, run COLMAP on those same exact 20-frame windows too. Keep the full-sequence COLMAP results, but add a separate matched-window comparison table.
 
 ### 4.3 Evaluation metrics
 
@@ -89,6 +105,8 @@ Tables 1a and 1b report the per-sequence COLMAP results. Across all seven sequen
 
 The most important qualitative finding is that **registration was frequently fragmented**: COLMAP often split a sequence into several disconnected sub-models rather than one continuous reconstruction. The largest connected model covered only 33–50% of frames on five of the seven sequences, even though total registration across all sub-models reached 52–94%. Two short, well-textured sequences (H03, H06) reconstructed as a single complete model. Sequence H05 is a clear failure case: high reprojection error (1.09 px), a near-degenerate recovered scale (Sim(3) scale 0.19), and 1.87 m ATE.
 
+> **KJ:** H06 is not quite a "single complete model" because Table 1a says it has 2 sub-models. Say something like: H03 reconstructed as one complete model; H06's largest model covered all input frames despite an extra small sub-model.
+
 **Table 1a.** Per-sequence COLMAP reconstruction and registration on the AQUALOC harbor sequences. "Largest model" is the largest connected reconstruction; "total reg." sums registered images across all sub-models.
 
 | Seq | Stride | Input imgs | Sub-models | Largest model (imgs / %) | Total reg. | Sparse points | Reproj. err (px) | Track len |
@@ -100,6 +118,8 @@ The most important qualitative finding is that **registration was frequently fra
 | H05 | 10 | 346 | 4 | 173 / 50.0% | 324 | 38,680 | 1.087 | 4.67 |
 | H06 | 10 | 254 | 2 | 254 / 100% | 256 | 54,257 | 0.352 | 6.20 |
 | H07 | 5 | 453 | 4 | 191 / 42.2% | 422 | 39,183 | 0.293 | 5.92 |
+
+> **KJ:** H06 has 254 input images but 256 total registered images. That looks suspicious unless you explain it. If total registration double-counts images across sub-models, add a footnote.
 
 **Table 1b.** Per-sequence COLMAP trajectory accuracy on the same sequences. ATE/RPE are computed against the dataset ground-truth trajectory after Sim(3) alignment; the Sim(3) scale is reported as a direct measure of scale ambiguity.
 
@@ -113,6 +133,8 @@ The most important qualitative finding is that **registration was frequently fra
 | H06 | 0.0525 | 0.0351 | 0.0017 | 0.508 |
 | H07 | 0.0096 | 0.0059 | 0.0012 | 0.404 |
 
+> **KJ:** H03 is interesting: it registers 100% of frames but still has high ATE. Spend a sentence explaining why complete registration does not automatically mean a good trajectory.
+
 On a representative run (H07, 453 images), GPU feature extraction took 2.6 s, sequential matching 3.1 s, and incremental mapping 91 s. Mapping time grew sharply with image count and scene difficulty: H02 (1629 images) required 552 s, and at stride five the two largest sequences did not converge within a ~25-minute budget, motivating the stride-ten setting for the larger sequences.
 
 ![Figure 1](figures/figure1_colmap_per_sequence.png)
@@ -123,9 +145,13 @@ On a representative run (H07, 453 images), GPU feature extraction took 2.6 s, se
 
 **Figure 3.** Trajectory error (ATE RMSE, log scale) after Sim(3) alignment to ground truth. Bars show COLMAP per full sequence; red diamonds show the DUSt3R 20-frame-window result for the three sequences on which it was run (H01, H02, H07). Five COLMAP sequences are accurate to a few centimeters; H03 and H05 are substantially worse, while DUSt3R clusters around 6 cm.
 
+> **KJ:** The figures go Figure 1, then Figure 3, then Figure 2. Renumber or reorder them. Also make clear in this caption that the DUSt3R points are 20-frame windows, not full-sequence results.
+
 ### 5.2 DUSt3R on harbor windows
 
 DUSt3R was run on 20-frame windows (120 image pairs each) from three sequences. Each window completed inference and 300-iteration global alignment in ~47 s with a peak GPU memory of 4.44 GB, and recovered poses for all 20 frames. Across the three windows its trajectory was consistently less accurate than COLMAP's on the same sequences (Table 2): ATE RMSE 5.8–7.2 cm versus COLMAP's 1.0–2.5 cm. The recovered Sim(3) scale ranged from 3.2 to 6.3 on every window — never close to 1 — confirming a large and consistent reconstruction-scale ambiguity that must be resolved with an external reference before the geometry is metric.
+
+> **KJ:** This comparison is not totally clean yet because these DUSt3R numbers are windows and the COLMAP numbers are full sequences. Say "COLMAP full-sequence reference values" for now, then add matched-window COLMAP results.
 
 A scaling limit was also observed: global alignment of 40 images exceeded the 12 GB budget, so a full sequence could not be processed at once on this hardware.
 
@@ -140,6 +166,8 @@ A scaling limit was also observed: global alignment of 40 images exceeded the 12
 ### 5.3 DUSt3R confidence collapse underwater
 
 The most striking DUSt3R result concerns confidence. On underwater imagery the model's per-pixel confidence was uniformly low across all three windows: the maximum confidence reached only 2.68–3.17 and the mean was 1.3–2.0. Because the model's default filtering threshold is 3.0, **the default setting retained 0–0.5% of predicted points** across the three windows (exactly 0% on two of them). Table 3 and Figure 2 show the survival curves: a threshold of 1.5 retained 33–83% of points depending on the sequence, and 1.1 retained 68–95%. Any underwater use of DUSt3R must therefore re-tune this threshold; reporting "points after default filtering" without adjustment would be meaningless here.
+
+> **KJ:** This is probably the most publishable result in the whole paper. Make it a bigger part of the abstract and discussion.
 
 **Table 3.** Fraction of DUSt3R dense points surviving confidence filtering across the three windows (each 4,096,000 total points).
 
@@ -163,6 +191,8 @@ Three conclusions follow from the measurements. First, **COLMAP is the more accu
 
 Third, on the three windows tested, **DUSt3R appears to trade accuracy for robustness and shows a clear domain-shift signature**. It registered every frame without calibration, but its trajectory was several times less accurate than COLMAP's and was recovered only up to a large unknown scale (3.2–6.3×) on every window. Its confidence collapse is the most consistent evidence of domain shift: a model confident enough on terrestrial data to default to a threshold of 3.0 barely reaches it (maximum 2.68–3.17) on this underwater data. Because these results come from three short 20-frame windows rather than full sequences, the accuracy comparison should be read as indicative rather than definitive; the confidence and scale-ambiguity findings, however, were consistent across all three windows. The practical consequence is unambiguous: the default confidence filter must be lowered or essentially all output is discarded.
 
+> **KJ:** "Trade accuracy for robustness" sounds a little too broad. Safer wording can be: on the tested windows, DUSt3R recovered all poses but had higher trajectory error after Sim(3) alignment.
+
 One caveat applies to the trajectory comparison specifically. The AQUALOC ground-truth trajectories were themselves produced by an offline COLMAP/SfM bundle-adjustment pipeline, so the ATE/RPE evaluation compares an online COLMAP reconstruction against a COLMAP-derived reference. This likely biases the trajectory comparison in COLMAP's favor and may partly explain its very low ATE on the well-behaved sequences; the registration-fragmentation and confidence-collapse findings, which do not depend on the reference trajectory, are not affected by this bias. An external metric ground truth (for example, FLSea's object-validated depth maps) would be needed to remove it.
 
 Taken together, the two methods are complementary rather than ranked: COLMAP for metric accuracy and interpretability where it converges, DUSt3R for calibration-free coverage where feature matching fails, provided its scale and confidence are handled explicitly.
@@ -170,6 +200,8 @@ Taken together, the two methods are complementary rather than ranked: COLMAP for
 ## 7. Limitations
 
 This study evaluated a single environment (the AQUALOC harbor site) on a single 12 GB workstation. The CIRS and FLSea datasets, and the deep AQUALOC archaeological sequences, were not processed, so the conclusions should not be extended to caves, forward-looking stereo, or deep-sea scenes without further experiments. DUSt3R was evaluated on three 20-frame windows because of the memory limit, so its trajectory statistics are based on short segments rather than full sequences and the accuracy comparison is indicative rather than definitive. Dense MVS for COLMAP and dense depth-map validation for DUSt3R (which requires FLSea's ground-truth depth) were out of scope. Two larger sequences used a coarser frame stride than the others, so per-sequence numbers should be read together with the stride column. Finally, ATE/RPE are reported against the dataset's offline COLMAP/SfM trajectory, which is itself an estimate rather than an external metric ground truth and likely favors COLMAP in the trajectory comparison (see Section 6).
+
+> **KJ:** Add two more limitations: no matched-window COLMAP comparison yet, and no qualitative visual inspection/scoring of the actual 3D reconstructions.
 
 ## 8. Conclusion
 
@@ -179,9 +211,13 @@ This paper reported a fully specified, reproducible comparison of COLMAP and DUS
 
 The datasets are publicly available: AQUALOC (https://www.lirmm.fr/aqualoc/), CIRS Underwater Caves (https://cirs.udg.edu/caves-dataset/), and FLSea (arXiv:2302.12772). The reconstruction and evaluation scripts used here (`run_colmap_gpu.py`, `run_dust3r_sweep.py`, `make_figures.py`), together with the per-sequence metric logs (JSON) and exact software versions, are provided as supplementary material and archived in a public repository at [repository URL to be inserted on submission]. Each result table and figure in this paper can be regenerated from these scripts and the public datasets, with the configuration fully specified in Section 4.
 
+> **KJ:** This is the biggest submission blocker. Replace the placeholder with a real public repo link and commit hash. If the repo is not public and complete, do not call this a reproducible benchmark yet.
+
+> **KJ:** Also add a short author contribution note before submission. Say what you did yourself, what public tools you used, and that you did not train a new model.
+
 ## Acknowledgments
 
-The author thanks the authors of the AQUALOC dataset for making the sequences and ground-truth trajectories publicly available, and the developers of COLMAP and DUSt3R for releasing their software and model weights.
+The author thanks the authors of the AQUALOC dataset for making the sequences and ground-truth trajectories publicly available, and the KJelopers of COLMAP and DUSt3R for releasing their software and model weights.
 
 ## References
 
