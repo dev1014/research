@@ -1,0 +1,7 @@
+# Figure Legends
+
+**Figure 1.** COLMAP per-sequence largest-model registration (bars, left axis) and mean reprojection error (line, right axis) on the AQUALOC harbor sequences. Registration completeness varies widely, and sequence H05 stands out as a failure case with elevated reprojection error. Figure file: `figures/figure1_colmap_per_sequence.png`.
+
+**Figure 2.** Trajectory error (ATE RMSE, log scale) after Sim(3) alignment to ground truth. Bars show COLMAP on the **full sequences**. Red diamonds show the **DUSt3R 20-frame-window** result for the three windows on which it was run (H01, H02, H07), and green open squares show **matched-window COLMAP** on those same 20-frame windows; these marker results are short-window values and are not directly comparable to the full-sequence bars. On the H07 window, matched-window COLMAP failed to register (2 of 20 frames, no trajectory), so no square is shown there. Five COLMAP full sequences are accurate to a few centimeters; H03 and H05 are substantially worse, while the DUSt3R windows cluster around 6 cm. Figure file: `figures/figure2_ate_per_sequence.png`.
+
+**Figure 3.** DUSt3R dense-point survival versus confidence threshold on three AQUALOC harbor windows. The maximum per-pixel confidence (2.68-3.17) lies at or just above the default threshold (3.0, dashed line), so default filtering removes essentially all points (0-0.5%) on every window. Figure file: `figures/figure3_dust3r_confidence.png`.
