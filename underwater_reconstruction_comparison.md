@@ -2,9 +2,9 @@
 
 **Author:** Dev Narang
 
-**Affiliation:** [School name, full postal address, country]
+**Affiliation:** Georgetown Day School, 12309 Potomac Hunt Rd, Gaithersburg, MD 20878, USA
 
-**Corresponding author:** Dev Narang, [email address], [telephone number], [fax number if available]
+**Corresponding author:** Dev Narang, devnarang083@gmail.com, 301-792-0099
 
 **Manuscript type:** Technical note
 
@@ -209,7 +209,7 @@ This paper reported a fully specified, reproducible comparison of COLMAP and DUS
 
 ## Data and Code Availability
 
-The datasets are publicly available: AQUALOC (https://www.lirmm.fr/aqualoc/), CIRS Underwater Caves (https://cirs.udg.edu/caves-dataset/), and FLSea (arXiv:2302.12772). The reconstruction and evaluation scripts used here (`run_colmap_gpu.py`, `run_colmap_window.py`, `run_dust3r_sweep.py`, `make_figures.py`), together with the per-sequence metric logs (JSON) and exact software versions, are archived in a public repository at https://github.com/dev1014/research (commit `273ffea2a5e75144f1e29d7380d8c7f6d7354b18`). Each result table and figure in this paper can be regenerated from these scripts and the public datasets, with the configuration fully specified in Section 4.
+The datasets are publicly available: AQUALOC (https://www.lirmm.fr/aqualoc/), CIRS Underwater Caves (https://cirs.udg.edu/caves-dataset/), and FLSea (arXiv:2302.12772). The reconstruction and evaluation scripts used here (`run_colmap_gpu.py`, `run_colmap_window.py`, `run_dust3r_sweep.py`, `make_figures.py`), together with the per-sequence metric logs (JSON) and exact software versions, are archived in a public repository at https://github.com/dev1014/research (commit `e0b09c0f3358cd8fa070885d3e2762b145b27b58`). Each result table and figure in this paper can be regenerated from these scripts and the public datasets, with the configuration fully specified in Section 4.
 
 **Author contributions.** D.N. designed and ran all experiments, wrote the reconstruction and evaluation scripts (`run_colmap_gpu.py`, `run_colmap_window.py`, `run_dust3r_sweep.py`, `make_figures.py`), performed the analysis, produced the figures, and wrote the manuscript. The work uses publicly released software and model weights without modification: COLMAP (the native CUDA build) and DUSt3R (the official `DUSt3R_ViTLarge_BaseDecoder_512_dpt` checkpoint). No new model was trained or fine-tuned, and no dataset was collected by the author; all imagery and ground-truth trajectories are from the public AQUALOC dataset.
 
@@ -219,11 +219,11 @@ The author thanks the authors of the AQUALOC dataset for making the sequences an
 
 ## References
 
-1. J. L. Schönberger and J.-M. Frahm. Structure-from-motion revisited. Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition (CVPR). pp. 4104–4113, 2016, https://doi.org/10.1109/CVPR.2016.445.
-2. J. L. Schönberger, E. Zheng, M. Pollefeys, and J.-M. Frahm. Pixelwise view selection for unstructured multi-view stereo. European Conference on Computer Vision (ECCV). pp. 501–518, 2016, https://doi.org/10.1007/978-3-319-46487-9_31.
-3. S. Wang, V. Leroy, Y. Cabon, B. Chidlovskii, and J. Revaud. DUSt3R: Geometric 3D vision made easy. Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR). pp. 20697–20709, 2024, https://doi.org/10.1109/CVPR52733.2024.01956.
-4. M. Ferrera, V. Creuze, J. Moras, and P. Trouvé-Peloux. AQUALOC: An underwater dataset for visual-inertial-pressure localization. The International Journal of Robotics Research. Vol. 38, no. 14, pp. 1549–1559, 2019, https://doi.org/10.1177/0278364919883346.
-5. A. Mallios, E. Vidal, R. Campos, and M. Carreras. Underwater caves sonar data set. The International Journal of Robotics Research. Vol. 36, no. 12, pp. 1247–1251, 2017, https://doi.org/10.1177/0278364917732838.
-6. Y. Randall and T. Treibitz. FLSea: Underwater visual-inertial and stereo-vision forward-looking datasets. arXiv preprint, 2023, https://doi.org/10.48550/arXiv.2302.12772.
-7. M. She, F. Seegräber, D. Nakath, and K. Köser. Refractive structure-from-motion revisited. arXiv preprint, 2024, https://doi.org/10.48550/arXiv.2403.08640.
-8. S. Umeyama. Least-squares estimation of transformation parameters between two point patterns. IEEE Transactions on Pattern Analysis and Machine Intelligence. Vol. 13, no. 4, pp. 376–380, 1991, https://doi.org/10.1109/34.88573.
+1. Schönberger, J. L., & Frahm, J.-M. (2016). Structure-from-motion revisited. In *Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition (CVPR)* (pp. 4104–4113). https://doi.org/10.1109/CVPR.2016.445
+2. Schönberger, J. L., Zheng, E., Pollefeys, M., & Frahm, J.-M. (2016). Pixelwise view selection for unstructured multi-view stereo. In *European Conference on Computer Vision (ECCV)* (pp. 501–518). https://doi.org/10.1007/978-3-319-46487-9_31
+3. Wang, S., Leroy, V., Cabon, Y., Chidlovskii, B., & Revaud, J. (2024). DUSt3R: Geometric 3D vision made easy. In *Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)* (pp. 20697–20709). https://doi.org/10.1109/CVPR52733.2024.01956
+4. Ferrera, M., Creuze, V., Moras, J., & Trouvé-Peloux, P. (2019). AQUALOC: An underwater dataset for visual-inertial-pressure localization. *The International Journal of Robotics Research, 38*(14), 1549–1559. https://doi.org/10.1177/0278364919883346
+5. Mallios, A., Vidal, E., Campos, R., & Carreras, M. (2017). Underwater caves sonar data set. *The International Journal of Robotics Research, 36*(12), 1247–1251. https://doi.org/10.1177/0278364917732838
+6. Randall, Y., & Treibitz, T. (2023). FLSea: Underwater visual-inertial and stereo-vision forward-looking datasets. *arXiv*. https://doi.org/10.48550/arXiv.2302.12772
+7. She, M., Seegräber, F., Nakath, D., & Köser, K. (2024). Refractive structure-from-motion revisited. *arXiv*. https://doi.org/10.48550/arXiv.2403.08640
+8. Umeyama, S. (1991). Least-squares estimation of transformation parameters between two point patterns. *IEEE Transactions on Pattern Analysis and Machine Intelligence, 13*(4), 376–380. https://doi.org/10.1109/34.88573
