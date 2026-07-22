@@ -2,7 +2,7 @@
 
 **Author:** Dev Narang
 
-**Affiliation:** University of Maryland, College Park, MD 20742, USA
+**Affiliation:** Georgetown Day School, 4200 Davenport Street NW, Washington, DC 20016, USA
 
 **Corresponding author:** Dev Narang, devnarang083@gmail.com, 301-792-0099
 
@@ -211,11 +211,7 @@ This paper reported a fully specified, reproducible comparison of COLMAP and DUS
 
 The datasets are publicly available: AQUALOC (https://www.lirmm.fr/aqualoc/), CIRS Underwater Caves (https://cirs.udg.edu/caves-dataset/), and FLSea (arXiv:2302.12772). The reconstruction and evaluation scripts used here (`run_colmap_gpu.py`, `run_colmap_window.py`, `run_dust3r_sweep.py`, `make_figures.py`), together with the per-sequence metric logs (JSON) and exact software versions, are archived in a public repository at https://github.com/dev1014/research (commit `e0b09c0f3358cd8fa070885d3e2762b145b27b58`). Each result table and figure in this paper can be regenerated from these scripts and the public datasets, with the configuration fully specified in Section 4.
 
-**Author contributions.** D.N. designed and ran all experiments, wrote the reconstruction and evaluation scripts (`run_colmap_gpu.py`, `run_colmap_window.py`, `run_dust3r_sweep.py`, `make_figures.py`), performed the analysis, produced the figures, and wrote the manuscript. The work uses publicly released software and model weights without modification: COLMAP (the native CUDA build) and DUSt3R (the official `DUSt3R_ViTLarge_BaseDecoder_512_dpt` checkpoint). No new model was trained or fine-tuned, and no dataset was collected by the author; all imagery and ground-truth trajectories are from the public AQUALOC dataset.
-
-## Acknowledgments
-
-The author thanks the authors of the AQUALOC dataset for making the sequences and ground-truth trajectories publicly available, and the developers of COLMAP and DUSt3R for releasing their software and model weights.
+**Author contributions.** D.N. (sole author) independently conceived the study, designed and ran all experiments, wrote the reconstruction and evaluation scripts (`run_colmap_gpu.py`, `run_colmap_window.py`, `run_dust3r_sweep.py`, `make_figures.py`), performed the analysis, produced the figures, and wrote the manuscript. The work uses publicly released software and model weights without modification: COLMAP (the native CUDA build) and DUSt3R (the official `DUSt3R_ViTLarge_BaseDecoder_512_dpt` checkpoint). No new model was trained or fine-tuned, and no dataset was collected by the author; all imagery and ground-truth trajectories are from the public AQUALOC dataset.
 
 ## References
 
